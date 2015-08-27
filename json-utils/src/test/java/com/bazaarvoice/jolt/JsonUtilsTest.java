@@ -16,6 +16,8 @@
 package com.bazaarvoice.jolt;
 
 import com.beust.jcommander.internal.Sets;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -229,4 +231,24 @@ public class JsonUtilsTest {
         Assert.assertEquals(actual, expected);
     }
 
+
+    private static class TestPojo {
+        @JsonProperty
+        private String fishType;
+        @JsonProperty
+        private int count;
+    }
+
+    @Test
+    public void deserializeFromMap() {
+        Map map = ImmutableMap.<Object,Object>of( "fishType", "tuna", "count", 2 );
+
+        JsonUtilImpl jsonUtil = new JsonUtilImpl();
+
+        TestPojo actual = jsonUtil.jsonObjectToJavaObject( map, new TypeReference<TestPojo>() {} );
+
+        Assert.assertNotNull( actual );
+        Assert.assertEquals( actual.fishType, "tuna" );
+        Assert.assertEquals( actual.count, 2 );
+    }
 }

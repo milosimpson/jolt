@@ -86,6 +86,16 @@ public class JsonUtilImpl implements JsonUtil {
         return jsonToObject( json, DEFAULT_ENCODING_UTF_8 );
     }
 
+    // DE-SERIALIZATION
+    public <T> T jsonObjectToJavaObject( Object json, TypeReference<T> typeReference ) {
+        try {
+            return objectMapper.convertValue( json, typeReference );
+        }
+        catch ( Exception e ) {
+            throw new RuntimeException( "Unable to convert 'Java in memory' JSON object into the required TypeReference.", e );
+        }
+    }
+
     @Override
     public Object jsonToObject( String json, String charset ) {
         try {

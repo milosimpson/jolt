@@ -33,7 +33,10 @@ import java.util.Map;
  */
 public interface JsonUtil {
 
-    // DE-SERIALIZATION
+    // Object DE-SERIALIZATION
+    <T> T jsonObjectToJavaObject( Object json, TypeReference<T> typeReference );
+
+    // Sting DE-SERIALIZATION
     Object jsonToObject( String json );
     Object jsonToObject( String json , String charset );
     Object jsonToObject( InputStream in );
