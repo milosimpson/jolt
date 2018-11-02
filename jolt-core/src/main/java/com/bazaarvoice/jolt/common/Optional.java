@@ -19,6 +19,8 @@ package com.bazaarvoice.jolt.common;
  * We cannot go away from this Optional to java 8 Optional because, this Optional gives as three states!
  * Where a value can an Object, a null (which is a valid json value) and absent,
  * which is not possible with Java 8 Optional.
+ *
+ * The Java 8 Optional treats a null input as "absent".  Which we have usecases where null is meaningful.
  */
 public class Optional<T> {
 
