@@ -36,6 +36,7 @@ public class FunctionStruct {
 
     // If there is a default param it should be the first param
     public final boolean hasDefaultParam;
+    public final boolean hasLastVarargParam;
     private final List<KnownTypes> paramKnownTypes;
 
     public FunctionStruct( String name, Method method, Object obj ) {
@@ -45,14 +46,20 @@ public class FunctionStruct {
 
 
         boolean hasADefaultParam = false;
-        Parameter[] params = method.getParameters();
+        boolean hasLastVarargs = false;
 
+        Parameter[] params = method.getParameters();
         paramKnownTypes = new ArrayList<>( params.length );
 
         for ( int index = 0; index < params.length; index++ ) {
+
             Parameter p = params[index];
 
             boolean defaultExists = p.isAnnotationPresent( DefaultParam.class );
+
+            if( index == params.length - 1 ) {
+                hasLastVarargs = p.isVarArgs();  // if VarArgs is just an "array" type, but there can be only one, and at the end of the param list.
+            }
 
             if ( index == 0 ) {
                 hasADefaultParam = defaultExists;
@@ -66,13 +73,14 @@ public class FunctionStruct {
 
             KnownTypes paramType = KnownTypes.identifyParameter( p );
 
-            if ( KnownTypes.UNKNOWN == paramType ) {
+            if ( KnownTypes.OBJECT == paramType ) {
                 throw new RuntimeException( "For function:" + name + " parameter #" + index + " has an unknown type.");
             }
 
             paramKnownTypes.add( paramType );
         }
 
+        hasLastVarargParam = hasLastVarargs;
         hasDefaultParam = hasADefaultParam;
     }
 
@@ -84,7 +92,7 @@ public class FunctionStruct {
         return method.getParameterCount();
     }
 
-    public Object invoke( Object ... args ) throws Exception {
+    public Optional invoke( Object ... args ) throws Exception {
 
         if ( args.length != numParams() ) {
             return null;
@@ -105,10 +113,10 @@ public class FunctionStruct {
         }
 
         if ( couldAdaptAll ) {
-            return method.invoke( obj, adaptedArgs );
+            return Optional.of( method.invoke( obj, adaptedArgs ) );
         }
         else {
-            return null;
+            return Optional.empty();
         }
     }
 }

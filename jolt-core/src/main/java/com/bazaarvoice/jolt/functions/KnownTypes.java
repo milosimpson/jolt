@@ -41,7 +41,7 @@ public enum KnownTypes {
     BOOL   ( new AdaptToBoolean() ),
     LIST   ( new NoopAdapter() ),
     MAP    ( new NoopAdapter() ),
-    UNKNOWN( new NoopAdapter() );
+    OBJECT ( new NoopAdapter() ); // Default / Unknown
 
     private Adapter adapter;
 
@@ -86,7 +86,7 @@ public enum KnownTypes {
             return MAP;
         }
 
-        return UNKNOWN;
+        return OBJECT;
     }
 
     /**
@@ -95,35 +95,44 @@ public enum KnownTypes {
      */
     public static KnownTypes identifyParameter( Parameter p ) {
 
-        Class<?> pType = p.getType();
+        p.isVarArgs();
 
-        // Integer.TYPE wat?  That is how we can tell if the parameter is a primitive type.
+        Class<?> type = p.getType();
 
-        if ( Integer.TYPE == pType || pType.isAssignableFrom( Integer.class ) ) {
+        // pType works until you have an array.   getComponentType() works with things like String[]
+
+        if ( type.isArray() ) {
+            type = type.getComponentType();
+        }
+
+        // Primitive types (int, long) can be used with "isAssignableFrom"
+        // Instead check to see if the type == Integer.TYPE, Long.TYPE, etc
+        //
+        if ( Integer.TYPE == type || type.isAssignableFrom( Integer.class ) ) {
             return INT;
         }
-        else if ( Long.TYPE == pType || pType.isAssignableFrom( Long.class ) ) {
+        else if ( Long.TYPE == type || type.isAssignableFrom( Long.class ) ) {
             return LONG;
         }
-        else if ( Float.TYPE == pType || pType.isAssignableFrom( Float.class ) ) {
+        else if ( Float.TYPE == type || type.isAssignableFrom( Float.class ) ) {
             return FLOAT;
         }
-        else if ( Double.TYPE == pType || pType.isAssignableFrom( Double.class ) ) {
+        else if ( Double.TYPE == type || type.isAssignableFrom( Double.class ) ) {
             return DOUBLE;
         }
-        else if ( Boolean.TYPE == pType || pType.isAssignableFrom(  Boolean.class ) ) {
+        else if ( Boolean.TYPE == type || type.isAssignableFrom(  Boolean.class ) ) {
             return BOOL;
         }
-        else if ( pType.isAssignableFrom( List.class ) ) {
+        else if ( type.isAssignableFrom( List.class ) ) {
             return LIST;
         }
-        else if ( pType.isAssignableFrom( Map.class ) ) {
+        else if ( type.isAssignableFrom( Map.class ) ) {
             return MAP;
         }
-        else if ( pType.isAssignableFrom( String.class ) ) {
+        else if ( type.isAssignableFrom( String.class ) ) {
             return STRING;
         }
 
-        return UNKNOWN;
+        return OBJECT;
     }
 }

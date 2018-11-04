@@ -16,6 +16,8 @@
 
 package com.bazaarvoice.jolt.functions;
 
+import java.util.Arrays;
+
 public final class TestFunctions {
 
    @Function( "isTrue" )
@@ -32,5 +34,15 @@ public final class TestFunctions {
    @Function( "trim" )
    public static String trim( @DefaultParam String str ) {
       return str.trim();
+   }
+
+   @Function( "join" )
+   public static String join( String delimiter, String ... args) {
+      return String.join( delimiter, args );
+   }
+
+   @Function( "intSum" )
+   public static int sum( int ... args ) {
+      return Arrays.stream( args ).reduce( 0, Integer::sum );
    }
 }
