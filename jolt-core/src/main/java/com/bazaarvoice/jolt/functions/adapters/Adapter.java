@@ -1,4 +1,4 @@
-package com.bazaarvoice.jolt.functions;
+package com.bazaarvoice.jolt.functions.adapters;
 
 import com.bazaarvoice.jolt.common.Optional;
 

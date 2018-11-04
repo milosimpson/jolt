@@ -1,13 +1,14 @@
-package com.bazaarvoice.jolt.functions;
+package com.bazaarvoice.jolt.functions.adapters;
 
 import com.bazaarvoice.jolt.common.Optional;
+import com.bazaarvoice.jolt.functions.KnownTypes;
 
 public class AdaptToBoolean implements Adapter<Boolean>{
 
     @Override
     public Optional<Boolean> adapt( Object obj ) {
 
-        KnownTypes knownType = KnownTypes.identifyObject( obj );
+        KnownTypes knownType = KnownTypes.identifyDataObject( obj );
 
         switch (knownType) {
             case NULL:

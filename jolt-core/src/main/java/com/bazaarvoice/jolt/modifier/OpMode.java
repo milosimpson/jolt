@@ -77,7 +77,7 @@ public enum OpMode {
      */
     private String op;
 
-    private OpMode( final String op ) {
+    OpMode( final String op ) {
         this.op = op;
     }
 

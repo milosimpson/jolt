@@ -1,160 +1,46 @@
 package com.bazaarvoice.jolt.functions;
 
 import com.bazaarvoice.jolt.common.Optional;
+import com.bazaarvoice.jolt.functions.adapters.*;
 
 import java.lang.reflect.Parameter;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Purpose of this class is to centralize / corral all the
+ *
+ * 1) Nasty instance of lookups.
+ * 2) Processing of reflection Params
+ * 3) Adapter lookup / logic.
+ */
 public enum KnownTypes {
 
-    NULL {
-        public Optional<Object> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
+    NULL   ( new NoopAdapter() ),
+    STRING ( new AdaptToString() ),
+    INT    ( new AdaptToInteger() ),
+    LONG   ( new NoopAdapter() ),
+    FLOAT  ( new NoopAdapter() ),
+    DOUBLE ( new AdaptToDouble() ),
+    BOOL   ( new AdaptToBoolean() ),
+    LIST   ( new NoopAdapter() ),
+    MAP    ( new NoopAdapter() ),
+    UNKNOWN( new NoopAdapter() );
 
+    private Adapter adapter;
 
-    STRING {
-        public Optional<String> adaptFrom( Object obj ) {
+    KnownTypes( Adapter adapter ) {
+        this.adapter = adapter;
+    }
 
-            KnownTypes adaptee = KnownTypes.identifyObject( obj );
+    public Optional adaptFrom( Object obj ) {
+        return this.adapter.adapt( obj );
+    }
 
-            switch (adaptee) {
-                case NULL:
-                    return Optional.empty();
-                case STRING:
-                        return Optional.of( (String) obj );
-                case BOOL:
-                    // return "true" or "false"
-                    return Optional.of( ((Boolean) obj).toString() );
-                case INT:
-                    return Optional.of( Integer.toString( ((Integer) obj ) ) );
-                case LONG:
-                    return Optional.of( Long.toString( ((Long) obj ) ) );
-                case FLOAT:
-                    return Optional.of( Float.toString( ((Float) obj ) ) );
-                case DOUBLE:
-                    return Optional.of( Double.toString( ((Double) obj ) ) );
-                default:
-                    return Optional.empty();
-            }
-        }
-    },
-
-    INT {
-        public Optional<Integer> adaptFrom( Object obj ) {
-
-            KnownTypes adaptee = KnownTypes.identifyObject( obj );
-
-            switch (adaptee) {
-                case NULL:
-                    return Optional.empty();
-                case STRING:
-                    Integer adapted = null;
-                    try {
-                        adapted = Integer.parseInt( (String) obj );
-                    }
-                    catch( NumberFormatException nfe ) {}
-
-                    if ( adapted == null ) {
-                        return Optional.empty();
-                    }
-                    else {
-                        return Optional.of( adapted );
-                    }
-                case BOOL:
-                    // truthy eval of Bool to 1 or 0
-                    return Optional.of( ((Boolean) obj) ? 1 : 0 );
-                case INT:
-                    return Optional.of( (Integer) obj );
-                case LONG:
-                    return Optional.of( ((Long) obj).intValue() );
-                case FLOAT:
-                    return Optional.of( ((Float) obj).intValue() );
-                case DOUBLE:
-                    return Optional.of( ((Double) obj).intValue() );
-                default:
-                    return Optional.empty();
-            }
-        }
-    },
-
-    LONG {
-        public Optional<Long> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
-
-    FLOAT {
-        public Optional<Float> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
-
-    DOUBLE {
-        public Optional<Double> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
-
-    BOOL {
-        public Optional<Boolean> adaptFrom( Object obj ) {
-
-            KnownTypes adaptee = KnownTypes.identifyObject( obj );
-
-            switch (adaptee) {
-                case NULL:
-                    return Optional.of( Boolean.FALSE );
-                case STRING:
-                    return Optional.of( adapt( (String) obj ) );
-                case BOOL:
-                    return Optional.of( (Boolean) obj );
-                case INT:
-                    return Optional.of( truthyAdapt( (int) obj ) );
-                case LONG:
-                    return Optional.of( truthyAdapt( (long) obj ) );
-                default:
-                    return Optional.empty();
-            }
-        }
-
-        private Boolean adapt( String str ) {
-            return Boolean.valueOf( str );
-        }
-
-        private Boolean truthyAdapt( int number ) {
-            return number >= 1;
-        }
-
-        private Boolean truthyAdapt( long number ) {
-            return number >= 1;
-        }
-    },
-
-    LIST {
-        public Optional<List> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
-
-    MAP {
-        public Optional<Map> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    },
-
-    UNKNOWN{
-        public Optional<Object> adaptFrom( Object obj ) {
-            return Optional.empty();
-        }
-    };
-
-
-    public abstract Optional adaptFrom( Object obj );
-
-
-    public static KnownTypes identifyObject( Object obj ) {
+    /**
+     * Given an unknown data object, figure out what KnownType it is.
+     */
+    public static KnownTypes identifyDataObject( Object obj ) {
 
         if ( obj == null ) {
             return NULL;
@@ -187,7 +73,10 @@ public enum KnownTypes {
         return UNKNOWN;
     }
 
-
+    /**
+     * Given a parameter from reflection, figure out which our
+     *  KnownTypes it corresponds too.
+     */
     public static KnownTypes identifyParameter( Parameter p ) {
 
         Class<?> pType = p.getType();

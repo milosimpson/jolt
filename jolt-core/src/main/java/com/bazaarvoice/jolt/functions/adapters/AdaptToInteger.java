@@ -1,13 +1,14 @@
-package com.bazaarvoice.jolt.functions;
+package com.bazaarvoice.jolt.functions.adapters;
 
 import com.bazaarvoice.jolt.common.Optional;
+import com.bazaarvoice.jolt.functions.KnownTypes;
 
 public class AdaptToInteger implements Adapter<Integer>{
 
     @Override
     public Optional<Integer> adapt( Object obj ) {
 
-        KnownTypes knownType = KnownTypes.identifyObject( obj );
+        KnownTypes knownType = KnownTypes.identifyDataObject( obj );
 
         switch (knownType) {
             case NULL:
