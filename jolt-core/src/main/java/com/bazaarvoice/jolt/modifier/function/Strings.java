@@ -16,12 +16,18 @@
 package com.bazaarvoice.jolt.modifier.function;
 
 import com.bazaarvoice.jolt.common.Optional;
+import com.bazaarvoice.jolt.functions.DefaultParam;
 
 import java.util.Arrays;
 import java.util.List;
 
 @SuppressWarnings( "deprecated" )
 public class Strings {
+
+    @com.bazaarvoice.jolt.functions.Function( "toLower" )
+    private static String toLowerCase( @DefaultParam String arg ) {
+        return arg.toLowerCase();
+    }
 
     public static final class toLowerCase extends Function.SingleFunction<String> {
         @Override
@@ -31,10 +37,13 @@ public class Strings {
                 return Optional.empty();
             }
 
-            String argString = (String) arg;
-
-            return Optional.of( argString.toLowerCase() );
+            return Optional.of( toLowerCase( (String) arg ) );
         }
+    }
+
+    @com.bazaarvoice.jolt.functions.Function( "toUpper" )
+    private static String toUpperCase( @DefaultParam String arg ) {
+        return arg.toUpperCase();
     }
 
     public static final class toUpperCase extends Function.SingleFunction<String> {
@@ -47,9 +56,14 @@ public class Strings {
 
             String argString = (String) arg;
 
-            return Optional.of( argString.toUpperCase() );
+            return Optional.of( toUpperCase( (String) arg ) );
         }
     }
+
+   @com.bazaarvoice.jolt.functions.Function( "trim" )
+   public static String trim( @DefaultParam String str ) {
+      return str.trim();
+   }
 
     public static final class trim extends Function.SingleFunction<String> {
         @Override
@@ -61,14 +75,14 @@ public class Strings {
 
             String argString = (String) arg;
 
-            return Optional.of( argString.trim() );
+            return Optional.of( trim( (String) arg ) );
         }
     }
 
     public static final class concat extends Function.ListFunction {
         @Override
         protected Optional<Object> applyList( final List<Object> argList ) {
-            StringBuilder sb = new StringBuilder(  );
+            StringBuilder sb = new StringBuilder();
             for(Object arg: argList ) {
                 if ( arg != null ) {
                     sb.append(arg.toString() );
@@ -77,6 +91,18 @@ public class Strings {
             return Optional.of(sb.toString());
         }
     }
+
+   @com.bazaarvoice.jolt.functions.Function( "trim" )
+   public static String substring( @DefaultParam String str, int start, int end ) {
+
+        // do start and end make sense?
+        if ( start >= end || start < 0 || end < 1 || end > str.length() ) {
+            return null;
+        }
+
+        return str.substring(start, end);
+   }
+
 
     public static final class substring extends Function.ListFunction {
 
