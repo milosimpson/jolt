@@ -61,13 +61,11 @@ public class ReadAnnotations {
         }
 
         {
-//            FunctionStruct trim = functions.get( "intAdd" );
-//
-//            System.out.println( " functionName " + trim.name + " bool true  returned : " + trim.invoke( "  shoes!  " ) );
-//            System.out.println();
+            FunctionStruct intAdd = functions.get( "intAdd" );
+
+            System.out.println( " functionName " + intAdd.name + " 1 + 2  returned : " + intAdd.invoke( 1.0d, 2.0f ) );
+            System.out.println();
         }
-
-
 
         {
             FunctionStruct isTrue = functions.get( "isTrue" );
